@@ -1,14 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+export default class App extends React.Component{
+
+  constructor(props){
+    super(props);
+    this.state = {
+      isLoading: true,
+      dataSource: null,
+    }
+  }
+
+  componentDidMount(){ 
+
+    return fetch('https://facebook.github.io/react-native/movies.json')
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.setState({
+        isLoading: false,
+        dataSource: responseJson.movies,
+      })
+    })
+    .catch((error) => {
+      console.log(error)
+    });
+
+  }
+
+  render() {
+    if(this.state.isLoading){
+
+      return(
+        <View style={styles.container}>
+          <ActivityIndicator />
+        </View>
+      )
+
+    } else {
+
+      let movies = this.state.dataSource.map((val, key) =>{ 
+        return <View key={key} style={styles.item}>
+          <Text>{val.title}</Text>
+          <Text>{val.releaseYear}</Text>
+        </View>
+      });
+
+      return(
+        <View style={styles.container}>
+          {movies}
+        </View>
+      );
+    }
+  }
 }
 
 const styles = StyleSheet.create({
@@ -18,4 +61,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  item: {
+    flex: 1,
+    alignSelf: 'stretch',
+    margin: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'black'
+  }
 });
